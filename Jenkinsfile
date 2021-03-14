@@ -17,7 +17,7 @@ pipeline {
            }  
            steps {
                withSonarQubeEnv('SONAR_LOCAL'){
-                    bat "${scannerHome}/bin/sonar-scanner -e -Dsonar.projectKey=DeployBack -Dsonar.host.url=http://localhost:9000 -Dsonar.login=537d521170f22544759024259da99f7ff32f5ef1 -Dsonar.java.binaries=target -Dsonar.coverage.exclusions=**/.mvn/**,**/src/test/**,**/model/**,**/RootController.java,**/TaskBackendApplication.java,**/ValidationException.java"
+                    bat "${scannerHome}/bin/sonar-scanner -e -Dsonar.projectKey=DeployBack -Dsonar.host.url=http://localhost:9000 -Dsonar.login=04ffa93374c393630cf99589c7058a988fde4567 -Dsonar.java.binaries=target -Dsonar.coverage.exclusions=**/.mvn/**,**/src/test/**,**/model/**,**/RootController.java,**/TaskBackendApplication.java,**/ValidationException.java"
                }
             }
         }
@@ -45,10 +45,18 @@ pipeline {
          stage ('Deploy Frontend') {
              steps {
                 dir('frontend') {
-                    git credentialsId: 'github_login', url: 'https://github.com/satdoug/tasks-frontend'`
+                    git credentialsId: 'github_login', url: 'https://github.com/satdoug/tasks-frontend'
                     bat 'mvn clean package'
-                    deploy adapters: [tomcat8(credentialsId: 'github_login', path: '', url: 'http://localhost:8001/')], contextPath: 'tasks-frontend', war: 'target/tasks.war'     
+                    deploy adapters: [tomcat8(credentialsId: 'Tomcat_login', path: '', url: 'http://localhost:8001/')], contextPath: 'tasks', war: 'target/tasks.war'     
                 } 
+             }
+         }
+         stage ('Functional Test') {
+             steps {
+                 dir('functional-test'){
+                    git credentialsId: 'github_login', url: 'https://github.com/satdoug/tasks-functional-test'
+                    bat 'mvn test'
+                 }
              }
          }
     }
